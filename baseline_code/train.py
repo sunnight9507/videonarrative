@@ -40,7 +40,8 @@ def train(cfg):
         'train_num': cfg.train.train_num,
         'batch_size': cfg.train.batch_size,
         'num_workers': cfg.num_workers,
-        'shuffle': True
+        'shuffle': True,
+        'is_test': False
     }
     train_loader = VideoQADataLoader(**train_loader_kwargs)
     logging.info("number of train instances: {}".format(len(train_loader.dataset)))
@@ -55,7 +56,8 @@ def train(cfg):
             'val_num': cfg.val.val_num,
             'batch_size': cfg.train.batch_size,
             'num_workers': cfg.num_workers,
-            'shuffle': False
+            'shuffle': False,
+            'is_test': False
         }
         val_loader = VideoQADataLoader(**val_loader_kwargs)
         logging.info("number of val instances: {}".format(len(val_loader.dataset)))
@@ -221,7 +223,7 @@ def tile(a, dim, n_tile):
 
 def step_decay(cfg, optimizer):
     # compute the new learning rate based on decay rate
-    cfg.train.lr *= 0.5
+    cfg.train.lr *= 0.8
     logging.info("Reduced learning rate to {}".format(cfg.train.lr))
     sys.stdout.flush()
     for param_group in optimizer.param_groups:

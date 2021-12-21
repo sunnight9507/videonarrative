@@ -43,7 +43,7 @@ def load_vocab(path):
 class VideoQADataset(Dataset):
 
     def __init__(self, answers, ans_candidates, ans_candidates_len, questions, questions_len, video_ids, q_ids,
-                 app_feature_h5, app_feat_id_to_index, motion_feature_h5, motion_feat_id_to_index):
+                 app_feature_h5, app_feat_id_to_index, motion_feature_h5, motion_feat_id_to_index, is_test):
         # convert data to tensor
         self.all_answers = answers
         self.all_questions = torch.LongTensor(np.asarray(questions))
@@ -54,6 +54,7 @@ class VideoQADataset(Dataset):
         self.motion_feature_h5 = motion_feature_h5
         self.app_feat_id_to_index = app_feat_id_to_index
         self.motion_feat_id_to_index = motion_feat_id_to_index
+        self.is_test = is_test
 
         if not np.any(ans_candidates):
             self.question_type = 'openended'
@@ -63,7 +64,8 @@ class VideoQADataset(Dataset):
             self.all_ans_candidates_len = torch.LongTensor(np.asarray(ans_candidates_len))
 
     def __getitem__(self, index):
-        answer = self.all_answers[index] if self.all_answers is not None else None
+        if not self.is_test:
+            answer = self.all_answers[index] if self.all_answers is not None else None
         ans_candidates = torch.zeros(5)
         ans_candidates_len = torch.zeros(5)
         if self.question_type == 'mulchoices':
@@ -81,9 +83,11 @@ class VideoQADataset(Dataset):
             motion_feat = f_motion['resnext_features'][motion_index]  # (8, 2048)
         appearance_feat = torch.from_numpy(appearance_feat)
         motion_feat = torch.from_numpy(motion_feat)
-        return (
-            video_idx, question_idx, answer, ans_candidates, ans_candidates_len, appearance_feat, motion_feat, question,
-            question_len)
+
+        if self.is_test:
+            return (video_idx, question_idx, answer, ans_candidates, ans_candidates_len, appearance_feat, motion_feat, question, question_len)
+        else:
+            return (video_idx, question_idx, answer, ans_candidates, ans_candidates_len, appearance_feat, motion_feat, question, question_len)
 
     def __len__(self):
         return len(self.all_questions)
@@ -157,10 +161,11 @@ class VideoQADataLoader(DataLoader):
         motion_feat_id_to_index = {str(id): i for i, id in enumerate(motion_video_ids)}
         self.app_feature_h5 = kwargs.pop('appearance_feat')
         self.motion_feature_h5 = kwargs.pop('motion_feat')
+        self.is_test = kwargs.pop('is_test')
         self.dataset = VideoQADataset(answers, ans_candidates, ans_candidates_len, questions, questions_len,
                                       video_ids, q_ids,
                                       self.app_feature_h5, app_feat_id_to_index, self.motion_feature_h5,
-                                      motion_feat_id_to_index)
+                                      motion_feat_id_to_index, self.is_test)
 
         self.vocab = vocab
         self.batch_size = kwargs['batch_size']

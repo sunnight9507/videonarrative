@@ -4,12 +4,13 @@ import json
 from datautils import utils
 import nltk
 
-import pickle
+import pickle5 as pickle
 import numpy as np
 
 import torch
 import re
 from konlpy.tag import Mecab
+import random
 
 # nltk.download("punkt")
 
@@ -168,9 +169,12 @@ def multichoice_encoding_data(args, vocab, questions,question_id, video_id, answ
         questions_id.append(questions_id[idx])
         video_id_tbw.append(video_id[idx])
 
-        # ground truth
-        answer = int(answers[idx])
-        correct_answers.append(answer)
+        if mode == "train":
+            # ground truth
+            answer = int(answers[idx])
+            correct_answers.append(answer)
+        else:
+            correct_answers.append(-1)
 
         # answer candidates
         candidates = answer_candidates[idx]
@@ -212,7 +216,7 @@ def multichoice_encoding_data(args, vocab, questions,question_id, video_id, answ
         print("Load glove from %s" % args.glove_pt)
         glove = pickle.load(open(args.glove_pt, 'rb'))
 
-        dim_word = glove['the'].shape[0]
+        dim_word = len(glove['1'])
 
         glove_matrix = []
         for i in range(len(token_itow)):
@@ -423,6 +427,11 @@ def process_questions_mulchoices(args):
 
 
         split = int(0.9*len(questions))
+        random.Random(42).shuffle(questions)
+        random.Random(42).shuffle(question_id)
+        random.Random(42).shuffle(correct_idx)
+        random.Random(42).shuffle(video_id)
+        random.Random(42).shuffle(answer_candidates)
         train_questions = questions[:split]
         train_question_id = question_id[:split]
         train_answers = correct_idx[:split]

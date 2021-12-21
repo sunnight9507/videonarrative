@@ -1,16 +1,16 @@
 gpu_id: 0
 multi_gpus: True
 num_workers: 2
-seed: 666
+seed: 419
 exp_name: 'expVIDEO-NARR'
 
 train:
   lr: 0.0001
-  batch_size: 32
+  batch_size: 128
   restore: False
-  max_epochs: 25
+  max_epochs: 30
   word_dim: 100 #300
-  module_dim: 512
+  module_dim: 1024
   glove: True
   k_max_frame_level: 16
   k_max_clip_level: 8

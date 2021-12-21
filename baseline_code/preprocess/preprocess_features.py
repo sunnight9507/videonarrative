@@ -154,7 +154,7 @@ def generate_h5(model, video_ids, num_clips, outfile):
         for i, video_path in enumerate(video_ids):
             print("preprocess_features video_path: %s" % video_path)
             text = video_path.split('/')
-            sample_text= text[9]
+            sample_text= text[-1]
             print("preprocess_features sample_text: %s" % sample_text)
             
             # 문자로 구성된 video id를 처리할 수 있도록 숫자로 변경 ( 문자 -> 숫자)
