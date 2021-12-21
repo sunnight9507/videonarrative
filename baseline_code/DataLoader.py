@@ -85,7 +85,7 @@ class VideoQADataset(Dataset):
         motion_feat = torch.from_numpy(motion_feat)
 
         if self.is_test:
-            return (video_idx, question_idx, answer, ans_candidates, ans_candidates_len, appearance_feat, motion_feat, question, question_len)
+            return (video_idx, question_idx, ans_candidates, ans_candidates_len, appearance_feat, motion_feat, question, question_len)
         else:
             return (video_idx, question_idx, answer, ans_candidates, ans_candidates_len, appearance_feat, motion_feat, question, question_len)
 
